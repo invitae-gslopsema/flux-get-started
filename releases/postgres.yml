@@ -1,0 +1,57 @@
+---
+apiVersion: helm.fluxcd.io/v1
+
+kind: HelmRelease
+
+metadata:
+  name: postgres-server
+  namespace: default
+
+spec:
+  releaseName: postgres-server
+  chart:
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    name: postgresql
+    version: 3.16.1
+
+  values:
+    ## Global Docker image parameters
+    ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+    ## Current available global Docker image parameters: imageRegistry and imagePullSecrets
+    ##
+    global:
+      postgresql: {}
+
+    replication:
+      enabled: false
+
+    postgresqlUsername: postgres
+    postgresqlPassword: pgpass
+    postgresqlDatabase: mydb
+
+    ## PostgreSQL data dir
+    ## ref: https://github.com/bitnami/bitnami-docker-postgresql/blob/master/README.md
+    ##
+    postgresqlDataDir: /bitnami/postgresql
+
+    ## PostgreSQL service configuration
+    service:
+      type: ClusterIP
+      # clusterIP: None
+      port: 5432
+      # loadBalancerIP:
+
+    ## PostgreSQL data Persistent Volume Storage Class
+    ## If defined, storageClassName: <storageClass>
+    ## If set to "-", storageClassName: "", which disables dynamic provisioning
+    ## If undefined (the default) or set to null, no storageClassName spec is
+    ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+    ##   GKE, AWS & OpenStack)
+    ##
+    persistence:
+      enabled: true
+      storageClass: "gp2"
+      accessModes:
+        - ReadWriteOnce
+      size: 40Gi
+      annotations: {}
